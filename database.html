@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySQL Database Telemetry — FITNEXA AI</title>
+  <meta name="description" content="Live MySQL database inspector for FITNEXA AI.">
+  <meta name="theme-color" content="#0B0C0E">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- FITNEXA Styles -->
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    body {
+      background: #0B0C0E;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+    .db-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 24px;
+      margin-bottom: 30px;
+    }
+    .db-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .badge-mysql {
+      background: rgba(0, 117, 143, 0.2);
+      border: 1px solid #00758F;
+      color: #00D4FF;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .stat-card {
+      background: rgba(18, 20, 24, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .stat-card:hover {
+      border-color: rgba(198, 255, 61, 0.4);
+      transform: translateY(-2px);
+    }
+    .stat-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #C6FF3D;
+    }
+    .stat-lbl {
+      font-size: 0.78rem;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+    .table-container {
+      background: rgba(18, 20, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .table-custom {
+      margin-bottom: 0;
+      color: #E2E8F0;
+      font-size: 0.86rem;
+    }
+    .table-custom thead th {
+      background: rgba(25, 28, 34, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      color: #C6FF3D;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 16px;
+    }
+    .table-custom tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.2s ease;
+    }
+    .table-custom tbody tr:hover {
+      background: rgba(198, 255, 61, 0.04);
+    }
+    .table-custom tbody td {
+      padding: 12px 16px;
+      vertical-align: middle;
+    }
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94A3B8;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: #C6FF3D;
+      color: #0B0C0E;
+      border-color: #C6FF3D;
+      box-shadow: 0 0 15px rgba(198, 255, 61, 0.3);
+    }
+    .goal-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(198, 255, 61, 0.1);
+      color: #C6FF3D;
+      border: 1px solid rgba(198, 255, 61, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container-fluid px-lg-5">
+    <!-- Header -->
+    <header class="db-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-3">
+          <a href="index.html" class="db-brand">FITNEXA<span style="color:#C6FF3D;">.</span></a>
+          <span class="badge-mysql"><i class="bi bi-database-fill me-1"></i> MySQL Server 9.6</span>
+          <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 font-mono small">CONNECTED</span>
+        </div>
+        <div class="text-secondary small font-mono mt-1">DATABASE: <strong class="text-white">fitnexa_db</strong> • HOST: <strong class="text-white">localhost:3306</strong></div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnRefresh">
+          <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+        </button>
+        <a href="dashboard/index.html" class="btn btn-sm btn-outline-warning">
+          <i class="bi bi-speedometer2 me-1"></i> Open Athlete Dashboard
+        </a>
+      </div>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num" id="statTablesCount">3</div>
+          <div class="stat-lbl">Active MySQL Tables</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num" id="statProfilesCount">19</div>
+          <div class="stat-lbl">Athlete Profiles (Seeded)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num" id="statUsersCount">4</div>
+          <div class="stat-lbl">Registered Auth Users</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-num" style="color: #00D4FF;">ACTIVE</div>
+          <div class="stat-lbl">Storage Engine InnoDB</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs & Search -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+      <div class="d-flex gap-2">
+        <button type="button" class="tab-btn active" data-tab="profiles">
+          <i class="bi bi-people-fill me-1"></i> profiles (<span id="tabProfilesCount">19</span>)
+        </button>
+        <button type="button" class="tab-btn" data-tab="users">
+          <i class="bi bi-person-badge-fill me-1"></i> users (<span id="tabUsersCount">4</span>)
+        </button>
+        <button type="button" class="tab-btn" data-tab="payments">
+          <i class="bi bi-credit-card-fill me-1"></i> payments (<span id="tabPaymentsCount">0</span>)
+        </button>
+        <button type="button" class="tab-btn" data-tab="user_data">
+          <i class="bi bi-activity me-1"></i> user_data
+        </button>
+      </div>
+
+      <div style="max-width: 320px; width: 100%;">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchInput" class="form-control bg-dark border-secondary text-light small" placeholder="Filter rows...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+      <div class="table-responsive" style="max-height: 650px;">
+        <table class="table table-custom table-dark table-hover" id="dataTable">
+          <thead id="tableHead">
+            <!-- Rendered by JS -->
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="10" class="text-center py-5 text-secondary">
+                <div class="spinner-border text-lime spinner-border-sm me-2"></div> Loading MySQL database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="mt-4 text-center text-secondary small font-mono">
+      FITNEXA AI • MySQL 9.6 Live Database Telemetry • Powered by Antigravity
+    </footer>
+  </div>
+
+  <script>
+    let dbData = null;
+    let currentTab = 'profiles';
+
+    async function loadDatabaseData() {
+      try {
+        const res = await fetch('/api/admin/database-view');
+        const data = await res.json();
+        if (data && data.success) {
+          dbData = data;
+          document.getElementById('statProfilesCount').innerText = data.summary.profilesCount;
+          document.getElementById('statUsersCount').innerText = data.summary.usersCount;
+          document.getElementById('tabProfilesCount').innerText = data.summary.profilesCount;
+          document.getElementById('tabUsersCount').innerText = data.summary.usersCount;
+          if (document.getElementById('tabPaymentsCount')) {
+            document.getElementById('tabPaymentsCount').innerText = data.summary.paymentsCount || (data.tables.payments ? data.tables.payments.length : 0);
+          }
+          renderTable();
+        }
+      } catch (err) {
+        console.error('Failed to load database view:', err);
+        document.getElementById('tableBody').innerHTML = `
+          <tr><td colspan="10" class="text-center py-4 text-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> Failed to connect to MySQL database: ${err.message}
+          </td></tr>`;
+      }
+    }
+
+    function renderTable() {
+      if (!dbData) return;
+      const head = document.getElementById('tableHead');
+      const body = document.getElementById('tableBody');
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      if (currentTab === 'profiles') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Athlete Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Height</th>
+            <th>Weight</th>
+            <th>Goal</th>
+            <th>Experience</th>
+            <th>Frequency</th>
+            <th>Onboarded</th>
+            <th>Created At</th>
+          </tr>
+        `;
+
+        let rows = dbData.tables.profiles || [];
+        if (search) {
+          rows = rows.filter(r => 
+            (r.full_name && r.full_name.toLowerCase().includes(search)) ||
+            (r.goal && r.goal.toLowerCase().includes(search)) ||
+            (r.experience && r.experience.toLowerCase().includes(search))
+          );
+        }
+
+        if (rows.length === 0) {
+          body.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-secondary">No matching profiles found</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = rows.map((r, i) => `
+          <tr>
+            <td class="font-mono text-muted">${i + 1}</td>
+            <td class="fw-bold text-white"><i class="bi bi-person-fill text-lime me-1"></i> ${r.full_name || 'N/A'}</td>
+            <td><span class="text-capitalize">${r.gender || '—'}</span></td>
+            <td class="font-mono">${r.age_range || '—'}</td>
+            <td class="font-mono">${r.height_cm ? r.height_cm + ' cm' : '—'}</td>
+            <td class="font-mono">${r.weight_kg ? r.weight_kg + ' kg' : '—'}</td>
+            <td><span class="goal-badge">${r.goal || 'unspecified'}</span></td>
+            <td><span class="badge bg-dark border border-secondary text-secondary text-capitalize font-mono">${r.experience || '—'}</span></td>
+            <td>${r.workout_frequency || '—'}</td>
+            <td>${r.onboarding_completed ? '<span class="text-lime"><i class="bi bi-check-circle-fill"></i> TRUE</span>' : '<span class="text-muted">FALSE</span>'}</td>
+            <td class="font-mono small text-muted">${r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}</td>
+          </tr>
+        `).join('');
+
+      } else if (currentTab === 'users') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>User ID</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Plan Tier</th>
+            <th>Payment Status</th>
+            <th>Registered At</th>
+          </tr>
+        `;
+
+        let rows = dbData.tables.users || [];
+        if (search) {
+          rows = rows.filter(r => 
+            (r.email && r.email.toLowerCase().includes(search)) ||
+            (r.full_name && r.full_name.toLowerCase().includes(search)) ||
+            (r.payment_status && r.payment_status.toLowerCase().includes(search)) ||
+            (r.plan_tier && r.plan_tier.toLowerCase().includes(search))
+          );
+        }
+
+        body.innerHTML = rows.map((r, i) => `
+          <tr>
+            <td class="font-mono text-muted">${i + 1}</td>
+            <td class="font-mono small text-lime">${r.id}</td>
+            <td class="fw-bold text-white"><i class="bi bi-envelope-fill me-1 text-secondary"></i> ${r.email}</td>
+            <td>${r.full_name || '—'}</td>
+            <td><span class="badge bg-dark border border-secondary text-light font-mono">${r.plan_tier || 'Free Trial (10 Days)'}</span></td>
+            <td>
+              <span class="badge font-mono" style="${r.payment_status === 'paid' ? 'background: rgba(198, 255, 61, 0.15); color: #C6FF3D; border: 1px solid rgba(198, 255, 61, 0.4);' : 'background: rgba(0, 212, 255, 0.15); color: #00D4FF; border: 1px solid rgba(0, 212, 255, 0.4);'}">
+                ${r.payment_status === 'paid' ? 'PAID' : '10-DAY TRIAL'}
+              </span>
+            </td>
+            <td class="font-mono small text-muted">${r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+          </tr>
+        `).join('');
+
+      } else if (currentTab === 'payments') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Txn ID</th>
+            <th>Athlete Name</th>
+            <th>Email</th>
+            <th>Plan Tier</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Method</th>
+            <th>Date</th>
+          </tr>
+        `;
+
+        let rows = dbData.tables.payments || [];
+        if (search) {
+          rows = rows.filter(r => 
+            (r.email && r.email.toLowerCase().includes(search)) ||
+            (r.user_name && r.user_name.toLowerCase().includes(search)) ||
+            (r.status && r.status.toLowerCase().includes(search)) ||
+            (r.transaction_id && r.transaction_id.toLowerCase().includes(search))
+          );
+        }
+
+        body.innerHTML = rows.map((r, i) => `
+          <tr>
+            <td class="font-mono text-muted">${i + 1}</td>
+            <td class="font-mono text-lime small">${r.transaction_id || r.id}</td>
+            <td class="fw-bold text-white">${r.user_name || 'Athlete'}</td>
+            <td class="font-mono text-secondary small">${r.email || '—'}</td>
+            <td><span class="badge bg-dark border border-secondary text-light font-mono">${r.plan_tier || 'Pro Athlete'}</span></td>
+            <td class="font-mono fw-bold ${r.status === 'paid' ? 'text-lime' : 'text-info'}">$${Number(r.amount).toFixed(2)}</td>
+            <td>
+              <span class="badge font-mono" style="${r.status === 'paid' ? 'background: rgba(198, 255, 61, 0.15); color: #C6FF3D; border: 1px solid rgba(198, 255, 61, 0.4);' : 'background: rgba(0, 212, 255, 0.15); color: #00D4FF; border: 1px solid rgba(0, 212, 255, 0.4);'}">
+                ${r.status === 'paid' ? 'PAID' : '10-DAY TRIAL'}
+              </span>
+            </td>
+            <td class="small text-muted">${r.payment_method || 'Stripe'}</td>
+            <td class="font-mono small text-muted">${r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}</td>
+          </tr>
+        `).join('');
+
+      } else {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>User ID</th>
+            <th>Last Updated</th>
+          </tr>
+        `;
+
+        const rows = dbData.tables.userData || [];
+        if (rows.length === 0) {
+          body.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-secondary">No telemetry logs recorded yet</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = rows.map((r, i) => `
+          <tr>
+            <td class="font-mono text-muted">${i + 1}</td>
+            <td class="font-mono text-lime">${r.user_id}</td>
+            <td class="font-mono small text-muted">${r.updated_at || '—'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.getAttribute('data-tab');
+        renderTable();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    document.getElementById('btnRefresh').addEventListener('click', loadDatabaseData);
+
+    document.addEventListener('DOMContentLoaded', loadDatabaseData);
+  </script>
+</body>
+</html>
+

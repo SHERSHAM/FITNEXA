@@ -1,0 +1,13 @@
+{
+  "name": "fitnexa-ai-fitness",
+  "version": "1.0.0",
+  "description": "FITNEXA AI - Complete AI Fitness Platform with Custom Backend",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "keywords": ["fitnexa", "fitness", "ai"],
+  "author": "",
+  "license": "ISC"
+}
+

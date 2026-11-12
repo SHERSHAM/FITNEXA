@@ -40,6 +40,7 @@
           <a href="#nutrition" class="dash-nav-link" data-tab="nutrition">Nutrition</a>
           <a href="#analytics" class="dash-nav-link" data-tab="analytics">Analytics</a>
           <a href="#aicoach" class="dash-nav-link" data-tab="aicoach">AI Coach</a>
+          <a href="../admin.html" class="dash-nav-link" style="color: #C6FF3D;"><i class="bi bi-shield-lock-fill me-1"></i>Admin</a>
         </nav>
       </div>
 
@@ -86,6 +87,27 @@
           </div>
         </div>
 
+        <!-- Free Trial Banner (Shown only for trial users) -->
+        <div id="trialBanner" class="dash-trial-banner mb-4 p-3 rounded-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" style="display: none; background: linear-gradient(90deg, rgba(0, 212, 255, 0.12) 0%, rgba(198, 255, 61, 0.08) 100%); border: 1px solid rgba(0, 212, 255, 0.35);">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: rgba(0, 212, 255, 0.2); color: #00D4FF; font-size: 1.3rem;">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+              <div class="fw-bold text-white d-flex align-items-center gap-2">
+                <span>10-Day Free Trial Active</span>
+                <span class="badge font-mono" style="background: rgba(0, 212, 255, 0.2); color: #00D4FF; border: 1px solid rgba(0, 212, 255, 0.4);" id="trialDaysBadge">10 DAYS LEFT</span>
+              </div>
+              <div class="text-secondary small font-mono">
+                You are currently in your 10-day trial period. Payment has not been completed.
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-fitnexa btn-accent px-4 py-2 text-nowrap" id="btnOpenPaymentModal">
+            <i class="bi bi-credit-card me-1"></i> Upgrade / Pay Now ($39/mo)
+          </button>
+        </div>
+
         <!-- 1. Today's Protocol Highlight Card -->
         <section class="dash-today-card mb-4" id="todayHeroCard">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -99,11 +121,22 @@
 
           <h2 class="dash-workout-title" id="todayWorkoutName">Upper Body Power</h2>
 
-          <div class="dash-chips-row">
+          <div class="dash-chips-row mb-3">
             <span class="dash-chip"><i class="bi bi-clock text-warning"></i> <strong id="todayDuration">45</strong> MIN</span>
             <span class="dash-chip"><i class="bi bi-list-check text-info"></i> <strong id="todayExercises">6</strong> EXERCISES</span>
             <span class="dash-chip"><i class="bi bi-fire text-danger"></i> <strong id="todayCalories">420</strong> KCAL</span>
             <span class="dash-chip"><i class="bi bi-shield-check text-lime"></i> READINESS <strong class="text-lime" id="todayReadiness">OPTIMAL</strong></span>
+          </div>
+
+          <!-- Included Exercises Photo Strip -->
+          <div class="mb-4 pt-1">
+            <div class="text-secondary small font-mono mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-images text-lime"></i>
+              <span>EXERCISE PROTOCOL PHOTO GUIDES:</span>
+            </div>
+            <div class="d-flex gap-2 flex-wrap" id="todayExercisePhotosRow">
+              <!-- Dynamically populated with exercise photos -->
+            </div>
           </div>
 
           <div class="d-flex gap-3 flex-wrap">
@@ -479,26 +512,34 @@
                 <div class="text-lime font-mono" style="font-size: 0.7rem;"><i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i> ONLINE & CALIBRATING</div>
               </div>
             </div>
-            <div class="font-mono text-muted small">GPT-4o Sports Engine</div>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-dark border-secondary font-mono text-lime" id="btnVoiceToggle" title="Toggle AI voice response">
+                <i class="bi bi-volume-up-fill me-1"></i> Voice: ON
+              </button>
+              <div class="font-mono text-muted small d-none d-sm-block">GPT-4o Sports Engine</div>
+            </div>
           </div>
 
           <!-- Chat Messages Container -->
           <div class="coach-chat-messages" id="coachChatMessages">
-            <div class="chat-bubble ai">
+            <div class="chat-bubble ai" id="coachWelcomeBubble">
               Hello! I am your FITNEXA AI personal coach. I track your workouts, calibrate training intensity, and optimize your nutrition. How can I help you conquer today's training?
             </div>
           </div>
 
           <!-- Quick Prompts Row -->
           <div class="px-4 py-2 d-flex gap-2 flex-wrap border-top border-secondary border-opacity-25" style="background: rgba(14, 16, 20, 0.6);">
+            <button type="button" class="btn btn-sm btn-outline-lime font-mono quick-prompt-btn" data-msg="Hi Coach!">
+              <i class="bi bi-hand-thumbs-up me-1"></i> Say "Hi Coach!"
+            </button>
             <button type="button" class="btn btn-sm btn-outline-secondary border-opacity-50 text-light quick-prompt-btn" data-msg="What should I eat before my workout today?">
               Pre-workout nutrition?
             </button>
             <button type="button" class="btn btn-sm btn-outline-secondary border-opacity-50 text-light quick-prompt-btn" data-msg="How can I optimize my bench press and shoulder stability?">
               Form tips?
             </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary border-opacity-50 text-light quick-prompt-btn" data-msg="Can you adapt my plan to prioritize fat loss?">
-              Prioritize fat loss?
+            <button type="button" class="btn btn-sm btn-outline-secondary border-opacity-50 text-light quick-prompt-btn" data-msg="What is my workout protocol for today?">
+              Today's workout?
             </button>
           </div>
 
@@ -516,25 +557,38 @@
   </div>
 
   <!-- ========================================================================
-       MODAL 1: ACTIVE WORKOUT SESSION (Live Tracker)
+       MODAL 1: ACTIVE WORKOUT SESSION (Live Tracker with Exercise Photos)
        ======================================================================== -->
   <div class="dash-modal-backdrop" id="workoutModal">
-    <div class="dash-modal-dialog">
-      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
-        <div>
-          <span class="dash-badge-protocol mb-1"><i class="bi bi-record-circle text-danger me-1"></i> LIVE SESSION</span>
-          <h2 class="auth-heading fs-3 mb-0" id="sessionWorkoutTitle">Upper Body Power</h2>
-        </div>
-        <div class="text-end font-mono">
-          <div class="display-6 fw-bold text-lime" id="workoutTimerDisplay">00:00</div>
-          <div class="text-muted small">ELAPSED TIME</div>
+    <div class="dash-modal-dialog" style="max-width: 760px;">
+      <!-- Workout Dynamic Header Banner with Photo -->
+      <div class="position-relative rounded-3 overflow-hidden mb-4" style="height: 130px; border: 1px solid rgba(198, 255, 61, 0.25);">
+        <img id="sessionWorkoutBannerImg" src="../assets/images/workout-muscle.jpg" alt="Active Workout" class="w-100 h-100" style="object-fit: cover; filter: brightness(0.4);">
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-3 d-flex flex-column justify-content-between">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="dash-badge-protocol mb-0"><i class="bi bi-record-circle text-danger me-1"></i> LIVE AI SESSION</span>
+            <div class="font-mono text-end">
+              <span class="badge bg-black bg-opacity-75 border border-lime text-lime px-3 py-1 fs-5 fw-bold" id="workoutTimerDisplay">00:00</span>
+            </div>
+          </div>
+          <div>
+            <h2 class="auth-heading fs-3 mb-1 text-white" id="sessionWorkoutTitle">Upper Body Power</h2>
+            <div class="text-secondary small font-mono d-flex gap-3">
+              <span><i class="bi bi-fire text-danger me-1"></i> <span id="sessionWorkoutCalories">420</span> kcal</span>
+              <span>•</span>
+              <span class="text-lime"><i class="bi bi-camera-fill me-1"></i> Exercise Photos & Visual Guides Active</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="mb-4">
-        <h3 class="dash-panel-title mb-3"><i class="bi bi-list-task"></i> EXERCISE PROTOCOL CHECKLIST</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="dash-panel-title mb-0"><i class="bi bi-list-task"></i> EXERCISE PROTOCOL CHECKLIST</h3>
+          <span class="small font-mono text-lime" style="font-size: 0.75rem;"><i class="bi bi-info-circle me-1"></i> Tap any photo to enlarge posture guide</span>
+        </div>
         <div id="sessionExercisesList">
-          <!-- Exercise Check Items -->
+          <!-- Exercise Check Items with Photos -->
         </div>
       </div>
 
@@ -550,10 +604,10 @@
   </div>
 
   <!-- ========================================================================
-       MODAL 2: PREVIEW ROUTINE (Details Breakdown)
+       MODAL 2: PREVIEW ROUTINE (Details Breakdown with Exercise Photos)
        ======================================================================== -->
   <div class="dash-modal-backdrop" id="previewModal">
-    <div class="dash-modal-dialog">
+    <div class="dash-modal-dialog" style="max-width: 740px;">
       <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
         <div>
           <span class="spec-badge-gold mb-1"><i class="bi bi-journal-text me-1"></i> ROUTINE BLUEPRINT</span>
@@ -571,7 +625,7 @@
       </div>
 
       <div id="previewExercisesList">
-        <!-- Filled by JS -->
+        <!-- Filled by JS with Photos -->
       </div>
 
       <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-end">
@@ -579,6 +633,115 @@
           Start This Protocol <i class="bi bi-arrow-right"></i>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: EXERCISE PHOTO & FORM GUIDE LIGHTBOX
+       ======================================================================== -->
+  <div class="dash-modal-backdrop" id="exercisePhotoModal" style="display: none; z-index: 1060;">
+    <div class="dash-modal-dialog" style="max-width: 580px; padding: 1.5rem;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <span class="badge bg-dark border border-lime text-lime font-mono small mb-1" id="zoomExTarget">Chest & Triceps</span>
+          <h3 class="auth-heading fs-4 mb-0 text-white" id="zoomExName">Barbell Bench Press</h3>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="btnClosePhotoModal" aria-label="Close"></button>
+      </div>
+      
+      <!-- High-Res Exercise Photo -->
+      <div class="rounded-3 overflow-hidden mb-3 position-relative" style="max-height: 320px; border: 1px solid rgba(198, 255, 61, 0.3);">
+        <img id="zoomExImage" src="" alt="Exercise Technique" class="w-100" style="object-fit: cover; max-height: 320px;">
+        <span class="position-absolute bottom-0 start-0 m-2 px-2 py-1 bg-black bg-opacity-75 rounded font-mono text-lime small">
+          <i class="bi bi-camera me-1"></i> AI Form Reference Photo
+        </span>
+      </div>
+
+      <!-- Exercise Instructions & AI Cue -->
+      <div class="p-3 rounded-2 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="font-mono text-secondary small">PRESCRIBED VOLUME</span>
+          <span class="font-mono text-lime small fw-bold" id="zoomExVolume">4 Sets × 8-10 Reps</span>
+        </div>
+        <div class="small text-secondary mb-2" id="zoomExInstructions">
+          Lower barbell with control to mid-chest, drive upward forcefully.
+        </div>
+        <div class="p-2 rounded font-mono small" style="background: rgba(198, 255, 61, 0.08); border-left: 3px solid #C6FF3D; color: #E0E2EC;" id="zoomExFormCue">
+          <span class="text-lime fw-bold">AI FORM CUE:</span> Keep shoulders pinned and drive through feet.
+        </div>
+      </div>
+
+      <div class="text-end">
+        <button type="button" class="btn-fitnexa btn-accent px-4 py-2" id="btnDonePhotoModal">
+          <i class="bi bi-check2 me-1"></i> Got It / Continue Workout
+        </button>
+      </div>
+    </div>
+  </div>
+          Start This Protocol <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: COMPLETE PAYMENT / UPGRADE TO PRO ATHLETE
+       ======================================================================== -->
+  <div class="dash-modal-backdrop" id="paymentModal" style="display: none;">
+    <div class="dash-modal-dialog" style="max-width: 520px;">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+        <div>
+          <span class="spec-badge-gold mb-1"><i class="bi bi-shield-check me-1"></i> SECURE PAYMENT CHECKOUT</span>
+          <h2 class="auth-heading fs-3 mb-0">Upgrade to Pro Athlete</h2>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="btnClosePayment" aria-label="Close"></button>
+      </div>
+
+      <!-- Plan Summary Card -->
+      <div class="p-3 mb-4 rounded-3" style="background: rgba(198, 255, 61, 0.06); border: 1px solid rgba(198, 255, 61, 0.25);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="fw-bold text-white fs-5">FITNEXA Pro Athlete Membership</span>
+          <span class="text-lime font-mono fw-bold fs-4">$39.00<span class="text-secondary fs-6">/mo</span></span>
+        </div>
+        <div class="text-secondary small">
+          Full unlimited access to AI biometric coaching, automated progressive overload, workout tracking & analytics.
+        </div>
+      </div>
+
+      <form id="paymentCheckoutForm">
+        <div class="mb-3">
+          <label class="form-label small text-secondary font-mono">CARDHOLDER NAME</label>
+          <input type="text" id="payCardName" class="form-control bg-black border-secondary text-light font-mono" placeholder="Full Name" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small text-secondary font-mono">CARD NUMBER</label>
+          <div class="input-group">
+            <span class="input-group-text bg-black border-secondary text-secondary"><i class="bi bi-credit-card-2-front"></i></span>
+            <input type="text" id="payCardNumber" class="form-control bg-black border-secondary text-light font-mono" value="4242 •••• •••• 4242" required>
+          </div>
+        </div>
+
+        <div class="row g-2 mb-4">
+          <div class="col-6">
+            <label class="form-label small text-secondary font-mono">EXPIRY</label>
+            <input type="text" class="form-control bg-black border-secondary text-light font-mono" value="12 / 28" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label small text-secondary font-mono">CVC</label>
+            <input type="text" class="form-control bg-black border-secondary text-light font-mono" value="888" required>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center gap-3 pt-2 border-top border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary text-light px-4 py-2" id="btnCancelPayment">
+            Cancel
+          </button>
+          <button type="submit" class="btn-fitnexa btn-accent px-4 py-2 flex-grow-1" id="btnSubmitPayment">
+            <i class="bi bi-lock-fill me-1"></i> Complete Payment ($39.00)
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -592,14 +755,12 @@
        SCRIPTS & DASHBOARD INTERACTIVITY LOGIC
        ======================================================================== -->
   <script src="../assets/js/data-store.js"></script>
-  <!-- Supabase JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../assets/js/supabase-config.js"></script>
+  <!-- Auth Logic (Custom Backend Edition) -->
   <script src="../assets/js/auth.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // ----------------------------------------------------------------------
-      // 0. Auth Guard — Require Login via Supabase
+      // 0. Auth Guard — Require Login via Custom Backend
       // ----------------------------------------------------------------------
       let supaUser = null;
       if (window.Auth) {
@@ -621,12 +782,19 @@
 
       // If no user exists in DataStore, create a clean fresh account
       if (!user) {
-        const displayName = (supaUser && supaUser.user_metadata && supaUser.user_metadata.full_name) || (supaUser ? supaUser.email.split('@')[0] : 'Athlete');
+        const displayName = supaUser.fullName || supaUser.full_name || (supaUser.user_metadata && supaUser.user_metadata.full_name) || (supaUser ? supaUser.email.split('@')[0] : 'Athlete');
+        const dbGoal = (supaUser.profile && supaUser.profile.goal) ? (
+          supaUser.profile.goal === 'lose_weight' ? 'Lose Fat' :
+          supaUser.profile.goal === 'gain_muscle' ? 'Build Muscle' :
+          supaUser.profile.goal === 'stay_fit' ? 'Stay Fit' :
+          supaUser.profile.goal === 'endurance' ? 'Improve Endurance' : 'Build Strength'
+        ) : 'Lose Fat';
+
         user = {
           id: supaUser ? supaUser.id : 'guest_' + Date.now(),
           fullName: displayName,
           email: supaUser ? supaUser.email : 'athlete@fitnexa.ai',
-          profile: { fitnessGoal: 'Lose Fat', todayWorkoutId: 'upper-body-power', trainingDays: 4 },
+          profile: { fitnessGoal: dbGoal, todayWorkoutId: 'upper-body-power', trainingDays: 4 },
           dashboardStats: {
             weeklyProgressPercent: 0,
             workoutsCompleted: 0,
@@ -665,6 +833,43 @@
 
       const dateOpts = { weekday: 'long', month: 'short', day: 'numeric' };
       document.getElementById('currentDateStr').innerText = `${new Date().toLocaleDateString('en-US', dateOpts).toUpperCase()} • PROTOCOL ACTIVE`;
+
+      // Free Trial & Payment Status Resolution
+      if (supaUser) {
+        user.payment_status = supaUser.payment_status || user.payment_status || 'trial';
+        user.plan_tier = supaUser.plan_tier || user.plan_tier || 'Free Trial (10 Days)';
+        user.trial_days_left = supaUser.trial_days_left !== undefined ? supaUser.trial_days_left : 10;
+      }
+
+      function updatePaymentStatusUI() {
+        const statusLabel = document.getElementById('userStatusLabel');
+        const trialBanner = document.getElementById('trialBanner');
+        const trialBadge = document.getElementById('trialDaysBadge');
+
+        const isPaid = (user.payment_status === 'paid');
+        if (isPaid) {
+          if (statusLabel) {
+            statusLabel.innerHTML = '<span class="badge font-mono" style="background: rgba(198, 255, 61, 0.15); color: #C6FF3D; border: 1px solid rgba(198, 255, 61, 0.3); font-size: 0.65rem;"><i class="bi bi-check-circle me-1"></i>PRO ATHLETE (PAID)</span>';
+          }
+          if (trialBanner) {
+            trialBanner.style.display = 'none';
+          }
+        } else {
+          // Free Trial
+          const daysLeft = user.trial_days_left !== undefined ? user.trial_days_left : 10;
+          if (statusLabel) {
+            statusLabel.innerHTML = `<span class="badge font-mono" style="background: rgba(0, 212, 255, 0.15); color: #00D4FF; border: 1px solid rgba(0, 212, 255, 0.3); font-size: 0.65rem;"><i class="bi bi-clock-history me-1"></i>10-DAY TRIAL (${daysLeft}D LEFT)</span>`;
+          }
+          if (trialBanner) {
+            trialBanner.style.display = 'flex';
+          }
+          if (trialBadge) {
+            trialBadge.innerText = `${daysLeft} DAYS LEFT`;
+          }
+        }
+      }
+
+      updatePaymentStatusUI();
 
       // ----------------------------------------------------------------------
       // 2. Render Metrics & KPIs
@@ -779,6 +984,101 @@
       document.getElementById('todayCalories').innerText = activeWorkout.calories;
 
       // ----------------------------------------------------------------------
+      // 3B. High-Res Exercise Photos Mapping & Visual Helpers
+      // ----------------------------------------------------------------------
+      const EXERCISE_PHOTOS = {
+        'barbell bench press': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
+        'pause barbell bench press': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
+        'incline dumbbell press': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&auto=format&fit=crop&q=80',
+        'bent-over barbell row': 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=600&auto=format&fit=crop&q=80',
+        'overhead dumbbell shoulder press': 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&auto=format&fit=crop&q=80',
+        'overhead dumbbell press': 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&auto=format&fit=crop&q=80',
+        'dumbbell lateral raises': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
+        'tricep rope pushdowns': 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&auto=format&fit=crop&q=80',
+        'dumbbell thrusters': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+        'kettlebell / dumbbell swings': 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=600&auto=format&fit=crop&q=80',
+        'burpee box jumps': 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&auto=format&fit=crop&q=80',
+        'mountain climbers & plank jacks': 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=600&auto=format&fit=crop&q=80',
+        'renegade rows to pushup': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600&auto=format&fit=crop&q=80',
+        'barbell back squat': 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
+        'romanian deadlift (rdl)': 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?w=600&auto=format&fit=crop&q=80',
+        'bulgarian split squats': 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&auto=format&fit=crop&q=80',
+        'standing calf raises': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
+        'med ball rotational slams': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+        'hanging leg raises': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80',
+        'hollow body hold': 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=600&auto=format&fit=crop&q=80',
+        'goblet squats to press': 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
+        'reverse lunges with bicep curl': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
+        'speed skaters & lateral bounds': 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&auto=format&fit=crop&q=80',
+        "world's greatest stretch": 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+        '90/90 hip flow & transitions': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&auto=format&fit=crop&q=80',
+        'thoracic foam roll extensions': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&auto=format&fit=crop&q=80',
+        'weighted chest dips': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
+        'cable fly high-to-low': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&auto=format&fit=crop&q=80',
+        'cat-cow segmented articulation': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&auto=format&fit=crop&q=80',
+        'box breathing 4-4-4-4': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&auto=format&fit=crop&q=80'
+      };
+
+      function getExercisePhoto(name) {
+        const key = (name || '').toLowerCase().trim();
+        if (EXERCISE_PHOTOS[key]) return EXERCISE_PHOTOS[key];
+        for (const [k, url] of Object.entries(EXERCISE_PHOTOS)) {
+          if (key.includes(k) || k.includes(key)) return url;
+        }
+        if (key.includes('bench') || key.includes('chest') || key.includes('press')) return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80';
+        if (key.includes('squat') || key.includes('leg')) return 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80';
+        if (key.includes('deadlift') || key.includes('back') || key.includes('row')) return 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=600&auto=format&fit=crop&q=80';
+        if (key.includes('shoulder') || key.includes('raise')) return 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&auto=format&fit=crop&q=80';
+        if (key.includes('arm') || key.includes('curl') || key.includes('tricep')) return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80';
+        if (key.includes('core') || key.includes('ab') || key.includes('plank')) return 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=600&auto=format&fit=crop&q=80';
+        return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80';
+      }
+
+      function renderTodayExercisePhotos() {
+        const row = document.getElementById('todayExercisePhotosRow');
+        if (!row || !activeWorkout || !activeWorkout.exercises) return;
+        row.innerHTML = activeWorkout.exercises.map((ex, i) => {
+          const photo = ex.image || getExercisePhoto(ex.name);
+          return `
+            <div class="d-flex align-items-center gap-2 p-1 pe-2 rounded-2" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+              <img src="${photo}" alt="${ex.name}" style="width: 34px; height: 34px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(198, 255, 61, 0.35);" onerror="this.onerror=null; this.src='../assets/images/workout-strength.jpg';">
+              <span class="font-mono small text-light" style="font-size: 0.74rem;">${ex.name}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      renderTodayExercisePhotos();
+
+      // Lightbox / Zoom Modal Handlers
+      const exercisePhotoModal = document.getElementById('exercisePhotoModal');
+      const btnClosePhotoModal = document.getElementById('btnClosePhotoModal');
+      const btnDonePhotoModal = document.getElementById('btnDonePhotoModal');
+
+      function openPhotoModalForExercise(ex) {
+        if (!ex) return;
+        const photoUrl = ex.image || getExercisePhoto(ex.name);
+        document.getElementById('zoomExName').innerText = ex.name;
+        document.getElementById('zoomExTarget').innerText = ex.target || 'Target Movement';
+        document.getElementById('zoomExVolume').innerText = `${ex.sets || 3} Sets × ${ex.reps || '10-12'} Reps ${ex.rest ? `(${ex.rest} Rest)` : ''}`;
+        document.getElementById('zoomExImage').src = photoUrl;
+        document.getElementById('zoomExInstructions').innerText = ex.instructions || 'Execute with full range of motion, controlled eccentric tempo, and optimal joint alignment.';
+        document.getElementById('zoomExFormCue').innerHTML = `<span class="text-lime fw-bold">AI FORM CUE:</span> ${ex.formCue || 'Maintain tight core bracing and strict eccentric tempo.'}`;
+        exercisePhotoModal.style.display = 'flex';
+      }
+
+      if (btnClosePhotoModal) {
+        btnClosePhotoModal.addEventListener('click', () => {
+          exercisePhotoModal.style.display = 'none';
+        });
+      }
+      if (btnDonePhotoModal) {
+        btnDonePhotoModal.addEventListener('click', () => {
+          exercisePhotoModal.style.display = 'none';
+        });
+      }
+
+      // ----------------------------------------------------------------------
       // 4. Tab Navigation (All Navbar Elements Working)
       // ----------------------------------------------------------------------
       const navLinks = document.querySelectorAll('.dash-nav-link');
@@ -857,29 +1157,51 @@
           return;
         }
 
-        catalogGrid.innerHTML = list.map(w => `
-          <div class="workout-catalog-card">
-            <div class="workout-card-img-wrap">
-              <img src="../assets/images/workout-muscle.jpg" alt="${w.name}" class="workout-card-img">
-              <span class="badge bg-dark bg-opacity-75 text-lime border border-lime position-absolute top-0 start-0 m-3 font-mono" style="font-size: 0.72rem;">
-                ${w.category || 'Strength'}
-              </span>
-            </div>
-            <div class="workout-card-body">
-              <div>
-                <h3 class="auth-heading fs-5 mb-2">${w.name}</h3>
-                <div class="d-flex gap-3 text-secondary small font-mono mb-3">
-                  <span><i class="bi bi-clock text-warning me-1"></i>${w.duration} min</span>
-                  <span><i class="bi bi-fire text-danger me-1"></i>${w.calories} kcal</span>
-                  <span><i class="bi bi-speedometer2 text-info me-1"></i>${w.difficulty}</span>
-                </div>
+        catalogGrid.innerHTML = list.map(w => {
+          const cat = (w.category || 'strength').toLowerCase();
+          const cardImg = cat.includes('hiit') ? '../assets/images/workout-hiit.jpg' :
+                          cat.includes('fat') ? '../assets/images/workout-fatloss.jpg' :
+                          cat.includes('endurance') ? '../assets/images/workout-endurance.jpg' :
+                          cat.includes('mobility') ? '../assets/images/workout-mobility.jpg' :
+                          cat.includes('strength') ? '../assets/images/workout-strength.jpg' : '../assets/images/workout-muscle.jpg';
+
+          const exerciseBadges = (w.exercises || []).slice(0, 4).map(ex => `
+            <img src="${ex.image || getExercisePhoto(ex.name)}" title="${ex.name}" alt="${ex.name}" style="width: 30px; height: 30px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(198, 255, 61, 0.35);" onerror="this.onerror=null; this.src='../assets/images/workout-strength.jpg';">
+          `).join('');
+
+          const moreCount = (w.exercises && w.exercises.length > 4) ? `<span class="badge bg-dark border border-secondary text-secondary font-mono small d-flex align-items-center">+${w.exercises.length - 4}</span>` : '';
+
+          return `
+            <div class="workout-catalog-card">
+              <div class="workout-card-img-wrap">
+                <img src="${cardImg}" alt="${w.name}" class="workout-card-img">
+                <span class="badge bg-dark bg-opacity-75 text-lime border border-lime position-absolute top-0 start-0 m-3 font-mono" style="font-size: 0.72rem;">
+                  ${w.category || 'Strength'}
+                </span>
               </div>
-              <button type="button" class="btn-fitnexa btn-accent w-100 py-2 mt-2 btn-launch-catalog" data-id="${w.id}">
-                Start Protocol <i class="bi bi-arrow-right"></i>
-              </button>
+              <div class="workout-card-body">
+                <div>
+                  <h3 class="auth-heading fs-5 mb-2">${w.name}</h3>
+                  <div class="d-flex gap-3 text-secondary small font-mono mb-2">
+                    <span><i class="bi bi-clock text-warning me-1"></i>${w.duration} min</span>
+                    <span><i class="bi bi-fire text-danger me-1"></i>${w.calories} kcal</span>
+                    <span><i class="bi bi-speedometer2 text-info me-1"></i>${w.difficulty}</span>
+                  </div>
+
+                  <!-- Exercise Photo Thumbnails -->
+                  <div class="d-flex align-items-center gap-1 mb-3 pt-1">
+                    <span class="text-secondary font-mono small me-1" style="font-size: 0.68rem;">Exercises:</span>
+                    ${exerciseBadges}
+                    ${moreCount}
+                  </div>
+                </div>
+                <button type="button" class="btn-fitnexa btn-accent w-100 py-2 mt-auto btn-launch-catalog" data-id="${w.id}">
+                  Start Protocol <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         // Attach launch listeners
         document.querySelectorAll('.btn-launch-catalog').forEach(btn => {
@@ -927,22 +1249,98 @@
       function launchWorkoutSession(workout) {
         currentSessionWorkout = workout || activeWorkout;
         document.getElementById('sessionWorkoutTitle').innerText = currentSessionWorkout.name;
+        if (document.getElementById('sessionWorkoutCalories')) {
+          document.getElementById('sessionWorkoutCalories').innerText = currentSessionWorkout.calories || 420;
+        }
+        if (document.getElementById('sessionWorkoutBannerImg')) {
+          const category = (currentSessionWorkout.category || 'strength').toLowerCase();
+          const bannerSrc = category.includes('hiit') ? '../assets/images/workout-hiit.jpg' :
+                            category.includes('fat') ? '../assets/images/workout-fatloss.jpg' :
+                            category.includes('endurance') ? '../assets/images/workout-endurance.jpg' :
+                            category.includes('mobility') ? '../assets/images/workout-mobility.jpg' : '../assets/images/workout-muscle.jpg';
+          document.getElementById('sessionWorkoutBannerImg').src = bannerSrc;
+        }
 
-        // Render checklist
+        // Render checklist with exercise photos
         const exList = currentSessionWorkout.exercises || [
           { name: 'Core Activation', sets: 3, reps: '15 reps', formCue: 'Maintain brace.' },
           { name: 'Primary Lift', sets: 4, reps: '8-10 reps', formCue: 'Explosive drive.' }
         ];
 
-        sessionExercisesList.innerHTML = exList.map((ex, idx) => `
-          <div class="routine-exercise-item d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-3">
-              <input type="checkbox" class="form-check-input mt-0 fs-5 exercise-check" id="checkEx${idx}">
-              <label for="checkEx${idx}" class="text-white fw-bold mb-0">${ex.name}</label>
+        sessionExercisesList.innerHTML = exList.map((ex, idx) => {
+          const photoUrl = ex.image || getExercisePhoto(ex.name);
+          const targetTag = ex.target || 'Compound Movement';
+          const formCue = ex.formCue || ex.instructions || 'Maintain strict form, tight brace, and steady breathing cadence.';
+
+          return `
+            <div class="routine-exercise-item d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 p-3 mb-3" id="exRow_${idx}" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; transition: all 0.2s ease;">
+              <div class="d-flex align-items-center gap-3 flex-grow-1">
+                <!-- Checkbox -->
+                <input type="checkbox" class="form-check-input mt-0 fs-4 exercise-check" id="checkEx${idx}" data-idx="${idx}" style="cursor: pointer; min-width: 24px; min-height: 24px;">
+
+                <!-- Photo Thumbnail -->
+                <div class="position-relative exercise-photo-thumb" data-idx="${idx}" style="width: 80px; height: 68px; min-width: 80px; border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(198, 255, 61, 0.35); cursor: pointer;" title="Click to view full photo & technique">
+                  <img src="${photoUrl}" alt="${ex.name}" class="w-100 h-100" style="object-fit: cover;" onerror="this.onerror=null; this.src='../assets/images/workout-strength.jpg';">
+                  <span class="position-absolute bottom-0 end-0 bg-black bg-opacity-75 text-lime px-1 rounded-top font-mono" style="font-size: 0.62rem;">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                  </span>
+                </div>
+
+                <!-- Exercise Info -->
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <label for="checkEx${idx}" class="text-white fw-bold mb-0 fs-6 cursor-pointer exercise-name-label" id="labelEx${idx}">${ex.name}</label>
+                    <span class="badge font-mono" style="background: rgba(198, 255, 61, 0.12); color: #C6FF3D; border: 1px solid rgba(198, 255, 61, 0.3); font-size: 0.65rem;">${targetTag}</span>
+                  </div>
+                  <div class="text-secondary small font-mono mb-1">
+                    <span class="text-white fw-bold">${ex.sets}</span> Sets × <span class="text-lime fw-bold">${ex.reps}</span>
+                    ${ex.rest ? ` <span class="text-muted">• ${ex.rest} rest</span>` : ''}
+                  </div>
+                  <div class="text-muted small font-mono" style="font-size: 0.72rem;">
+                    <span class="text-secondary">💡 Cue:</span> ${formCue}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick View Photo Button -->
+              <div class="d-flex align-items-center gap-2 align-self-end align-self-sm-center">
+                <button type="button" class="btn btn-sm btn-outline-secondary text-lime border-secondary border-opacity-50 font-mono btn-view-photo" data-idx="${idx}" style="font-size: 0.72rem; padding: 4px 10px;">
+                  <i class="bi bi-image me-1"></i> View Photo
+                </button>
+              </div>
             </div>
-            <div class="text-secondary small font-mono">${ex.sets} Sets × ${ex.reps}</div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+
+        // Wire up checkboxes
+        sessionExercisesList.querySelectorAll('.exercise-check').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const idx = chk.getAttribute('data-idx');
+            const row = document.getElementById(`exRow_${idx}`);
+            const label = document.getElementById(`labelEx${idx}`);
+            if (chk.checked) {
+              row.style.background = 'rgba(198, 255, 61, 0.08)';
+              row.style.borderColor = 'rgba(198, 255, 61, 0.4)';
+              label.style.textDecoration = 'line-through';
+              label.style.opacity = '0.6';
+            } else {
+              row.style.background = 'rgba(255, 255, 255, 0.03)';
+              row.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+              label.style.textDecoration = 'none';
+              label.style.opacity = '1';
+            }
+          });
+        });
+
+        // Wire up Photo click to open Zoom Lightbox
+        sessionExercisesList.querySelectorAll('.exercise-photo-thumb, .btn-view-photo').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(el.getAttribute('data-idx'), 10);
+            const ex = exList[idx];
+            if (ex) openPhotoModalForExercise(ex);
+          });
+        });
 
         // Start Timer
         sessionSeconds = 0;
@@ -978,7 +1376,25 @@
           workoutModal.style.display = 'none';
 
           const earnedCalories = currentSessionWorkout.calories || 420;
-          const durationStr = `${Math.max(1, Math.round(sessionSeconds / 60))} min`;
+          const durationMins = Math.max(1, Math.round(sessionSeconds / 60));
+          const durationStr = `${durationMins} min`;
+
+          // Sync workout session to MySQL Database & Admin Panel
+          try {
+            fetch('/api/admin/log-workout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: user.id,
+                userName: user.fullName || user.full_name || 'Athlete',
+                workoutName: currentSessionWorkout.name,
+                category: currentSessionWorkout.category || 'Strength',
+                durationMin: durationMins || currentSessionWorkout.duration || 45,
+                caloriesBurned: earnedCalories,
+                formScore: 96
+              })
+            }).catch(e => console.warn('Could not sync workout to MySQL:', e));
+          } catch(e) {}
 
           if (window.DataStore && window.DataStore.recordSession && user.id) {
             window.DataStore.recordSession(user.id, {
@@ -1032,17 +1448,43 @@
           document.getElementById('previewDifficulty').innerText = activeWorkout.difficulty || 'Intermediate';
 
           const exList = activeWorkout.exercises || [];
-          previewExercisesList.innerHTML = exList.map(ex => `
-            <div class="routine-exercise-item">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <div class="fw-bold text-white">${ex.name}</div>
-                <div class="text-lime font-mono small">${ex.sets} Sets × ${ex.reps}</div>
+          previewExercisesList.innerHTML = exList.map((ex, idx) => {
+            const photoUrl = ex.image || getExercisePhoto(ex.name);
+            const targetTag = ex.target || 'Compound';
+            const formCue = ex.formCue || ex.instructions || 'Focus on controlled eccentric cadence.';
+            return `
+              <div class="routine-exercise-item d-flex align-items-center gap-3 p-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                <div class="position-relative preview-photo-thumb" data-idx="${idx}" style="width: 76px; height: 64px; min-width: 76px; border-radius: 10px; overflow: hidden; border: 1.5px solid rgba(198, 255, 61, 0.35); cursor: pointer;" title="Click to enlarge photo">
+                  <img src="${photoUrl}" alt="${ex.name}" class="w-100 h-100" style="object-fit: cover;" onerror="this.onerror=null; this.src='../assets/images/workout-strength.jpg';">
+                  <span class="position-absolute bottom-0 end-0 bg-black bg-opacity-75 text-lime px-1 rounded-top font-mono" style="font-size: 0.6rem;">
+                    <i class="bi bi-zoom-in"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+                    <div class="fw-bold text-white fs-6">${ex.name}</div>
+                    <div class="text-lime font-mono small">${ex.sets} Sets × ${ex.reps}</div>
+                  </div>
+                  <div class="text-secondary small font-mono mb-1">
+                    <span class="badge font-mono" style="background: rgba(198, 255, 61, 0.1); color: #C6FF3D; border: 1px solid rgba(198, 255, 61, 0.25); font-size: 0.65rem;">${targetTag}</span>
+                    ${ex.rest ? `<span class="text-muted ms-2">• ${ex.rest} rest</span>` : ''}
+                  </div>
+                  <div class="text-muted small" style="font-size: 0.75rem;">
+                    <span class="text-lime font-mono">Form cue:</span> ${formCue}
+                  </div>
+                </div>
               </div>
-              <div class="text-secondary small">
-                <span class="text-muted font-mono">Form cue:</span> ${ex.formCue || 'Focus on controlled eccentric cadence.'}
-              </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
+
+          // Wire up click on preview photos
+          previewExercisesList.querySelectorAll('.preview-photo-thumb').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+              const idx = parseInt(thumb.getAttribute('data-idx'), 10);
+              const ex = exList[idx];
+              if (ex) openPhotoModalForExercise(ex);
+            });
+          });
 
           previewModal.style.display = 'flex';
         });
@@ -1074,12 +1516,53 @@
       }
 
       // ----------------------------------------------------------------------
-      // 9. Interactive AI Coach Terminal Chat
+      // 9. Interactive Personalized AI Coach Terminal Chat
       // ----------------------------------------------------------------------
       const coachChatForm = document.getElementById('coachChatForm');
       const chatInputText = document.getElementById('chatInputText');
       const coachChatMessages = document.getElementById('coachChatMessages');
       const quickPromptBtns = document.querySelectorAll('.quick-prompt-btn');
+
+      // Personalize athlete name for AI responses
+      const rawAthleteName = (user.fullName || user.full_name || 'Athlete').trim();
+      const firstToken = rawAthleteName.split(' ')[0] || 'Athlete';
+      const athleteName = firstToken.charAt(0).toUpperCase() + firstToken.slice(1);
+
+      // Personalize initial greeting bubble
+      const coachWelcomeBubble = document.getElementById('coachWelcomeBubble');
+      if (coachWelcomeBubble) {
+        coachWelcomeBubble.innerText = `Hello ${athleteName}! I am your FITNEXA AI personal coach. I track your workouts, calibrate training intensity, and optimize your nutrition. How can I help you conquer today's training?`;
+      }
+
+      // Voice Speech Output Toggle
+      let voiceEnabled = true;
+      const btnVoiceToggle = document.getElementById('btnVoiceToggle');
+      if (btnVoiceToggle) {
+        btnVoiceToggle.addEventListener('click', () => {
+          voiceEnabled = !voiceEnabled;
+          btnVoiceToggle.innerHTML = voiceEnabled ?
+            '<i class="bi bi-volume-up-fill me-1"></i> Voice: ON' :
+            '<i class="bi bi-volume-mute-fill me-1"></i> Voice: OFF';
+          btnVoiceToggle.className = voiceEnabled ?
+            'btn btn-sm btn-dark border-secondary font-mono text-lime' :
+            'btn btn-sm btn-dark border-secondary font-mono text-secondary';
+          if (!voiceEnabled && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
+        });
+      }
+
+      function speakText(text) {
+        if (!voiceEnabled || !window.speechSynthesis) return;
+        try {
+          window.speechSynthesis.cancel();
+          const cleanText = text.replace(/[*#_~💡⚡]/g, '').trim();
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          utterance.rate = 1.05;
+          utterance.pitch = 1.0;
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+      }
 
       function appendChatMessage(sender, text) {
         const bubble = document.createElement('div');
@@ -1089,23 +1572,86 @@
         coachChatMessages.scrollTop = coachChatMessages.scrollHeight;
       }
 
+      function generateCoachReply(rawInput) {
+        const q = (rawInput || '').toLowerCase().trim();
+        const workoutName = (activeWorkout && activeWorkout.name) || 'Upper Body Power';
+        const workoutCal = (activeWorkout && activeWorkout.calories) || 420;
+        const workoutDur = (activeWorkout && activeWorkout.duration) || 45;
+        const daysLeft = user.trial_days_left !== undefined ? user.trial_days_left : 10;
+        const isPaid = (user.payment_status === 'paid');
+
+        // 1. Greetings (Hi, Hello, Hey, Sup, Yo, Good morning) -> Responds with user's name!
+        if (/^(hi|hello|hey|yo|sup|good morning|good evening|good afternoon|namaste|hola|howdy)(\s|$|[!?.])/i.test(q) || q === 'hi' || q === 'hello' || q === 'hey' || q.includes('hi coach') || q.includes('hello coach')) {
+          return `Hi ${athleteName}! Great to see you back on the training floor. I am actively monitoring your biometric performance. Ready to crush today's protocol, or do you need guidance on your exercises, form, or meals?`;
+        }
+
+        // 2. Name & Identity inquiries
+        if (q.includes('my name') || q.includes('who am i') || q.includes('who i am') || q.includes('know me')) {
+          return `Your name is ${athleteName}! You're registered as a FITNEXA athlete ${isPaid ? 'with an active Pro Athlete membership' : `on the 10-Day Free Trial (${daysLeft} days remaining)`}. Ready to get after your goals!`;
+        }
+
+        // 3. Who are you
+        if (q.includes('who are you') || q.includes('what are you') || q.includes('your name')) {
+          return `I am your FITNEXA AI personal coach, ${athleteName}! I track your session telemetry, adjust progressive overload, and guide your exercise technique with high-resolution visual posture guides.`;
+        }
+
+        // 4. Workout / Today's protocol / Exercises
+        if (q.includes('workout') || q.includes('routine') || q.includes('today') || q.includes('exercise') || q.includes('protocol') || q.includes('train')) {
+          return `Here is your protocol for today, ${athleteName}: We have calibrated "${workoutName}" (${workoutDur} mins, ~${workoutCal} kcal). It features high-definition exercise photo guides for every lift. Click "Start Workout" on your dashboard whenever you're ready to begin!`;
+        }
+
+        // 5. Nutrition / Eating / Pre-workout / Post-workout / Meals / Protein / Diet
+        if (q.includes('eat') || q.includes('nutrition') || q.includes('meal') || q.includes('food') || q.includes('protein') || q.includes('diet') || q.includes('calorie') || q.includes('carb')) {
+          return `Here is your nutritional blueprint for today, ${athleteName}: Ingest 30–40g of complex carbohydrates (like rolled oats or a sliced banana with honey) 60 minutes pre-session for glycogen saturation, followed by 25–30g of lean protein post-workout. Be sure to drink 3+ liters of water!`;
+        }
+
+        // 6. Form / Posture / Technique / Injury / Safety
+        if (q.includes('form') || q.includes('bench') || q.includes('squat') || q.includes('deadlift') || q.includes('posture') || q.includes('technique') || q.includes('pain') || q.includes('hurt')) {
+          return `Technique is our top priority, ${athleteName}! For compound lifts: always retract your scapulae, lock in your core brace, and maintain a controlled 2-second eccentric tempo. In any workout session, you can tap on any exercise photo to view the full posture guide!`;
+        }
+
+        // 7. Status / Membership / Trial / Payment
+        if (q.includes('trial') || q.includes('plan') || q.includes('status') || q.includes('membership') || q.includes('pay') || q.includes('subscription')) {
+          if (isPaid) {
+            return `You have an active Pro Athlete membership, ${athleteName}! You have unrestricted access to all biometric analytics and photo guides.`;
+          } else {
+            return `You are currently in your 10-Day Free Trial, ${athleteName}, with ${daysLeft} days remaining. All workouts and photo guides are unlocked. You can upgrade to the paid plan ($39/mo) anytime from your dashboard!`;
+          }
+        }
+
+        // 8. Motivation / Fatigue / Soreness / Rest
+        if (q.includes('tired') || q.includes('sore') || q.includes('lazy') || q.includes('motivat') || q.includes('can\'t') || q.includes('cant') || q.includes('rest')) {
+          return `Listen to your body, ${athleteName}. Consistency beats intensity every single time. Even a lighter session or mobility recovery keeps the streak alive. You've got this — let's get moving!`;
+        }
+
+        // 9. Thanks / Gratitude
+        if (q.includes('thank') || q.includes('thanks') || q.includes('great') || q.includes('awesome') || q.includes('ok') || q.includes('okay')) {
+          return `You're welcome, ${athleteName}! Let's keep the intensity high and execute today's training with clean technique. Let me know if you need anything else!`;
+        }
+
+        // Default intelligent fallback mentioning name
+        return `Understood, ${athleteName}! I have calibrated your request into your biometric profile. Focus on progressive overload, maintain clean form, and let me know if you need adjustments to today's protocol!`;
+      }
+
       function sendCoachMessage(text) {
         appendChatMessage('user', text);
 
+        // Show typing indicator
+        const typingBubble = document.createElement('div');
+        typingBubble.className = 'chat-bubble ai';
+        typingBubble.id = 'coachTypingIndicator';
+        typingBubble.innerHTML = '<span class="spinner-grow spinner-grow-sm text-lime me-2" style="width: 0.7rem; height: 0.7rem;"></span> <span class="font-mono text-secondary small">FITNEXA AI is typing...</span>';
+        coachChatMessages.appendChild(typingBubble);
+        coachChatMessages.scrollTop = coachChatMessages.scrollHeight;
+
         setTimeout(() => {
-          let reply = "I have calibrated your request into your biometric profile.";
-          const q = text.toLowerCase();
-          if (q.includes('eat') || q.includes('nutrition') || q.includes('meal')) {
-            reply = "For today's high-intensity session, ingest 30-40g of fast-absorbing complex carbohydrates (e.g. rolled oats or sliced banana with honey) 60 minutes prior, paired with 25g whey protein for amino acid pool saturation.";
-          } else if (q.includes('form') || q.includes('bench') || q.includes('squat')) {
-            reply = "Ensure optimal scapular retraction and depress your lats before initiating the eccentric phase. Drive through the heels while keeping elbows tucked at roughly 45 degrees to protect anterior shoulder capsules.";
-          } else if (q.includes('fat loss') || q.includes('burn') || q.includes('cardio')) {
-            reply = "Calibrated! I have bumped your target heart rate zone to Zone 2/3 and adjusted your post-workout protocol to HIIT Metabolic Blaze to sustain maximal EPOC expenditure.";
-          } else {
-            reply = `Understood! I am monitoring your recovery readiness (currently ${user.recovery ? user.recovery.score : 90}%). Focus on progressive overload and maintain tight core bracing throughout today's exercises.`;
-          }
+          const typingEl = document.getElementById('coachTypingIndicator');
+          if (typingEl) typingEl.remove();
+
+          const reply = generateCoachReply(text);
           appendChatMessage('ai', reply);
-        }, 500);
+          speakText(reply);
+        }, 450);
       }
 
       if (coachChatForm) {
@@ -1124,6 +1670,86 @@
           sendCoachMessage(msg);
         });
       });
+
+      // ----------------------------------------------------------------------
+      // 9B. Free Trial Upgrade & Payment Modal
+      // ----------------------------------------------------------------------
+      const paymentModal = document.getElementById('paymentModal');
+      const btnOpenPaymentModal = document.getElementById('btnOpenPaymentModal');
+      const btnClosePayment = document.getElementById('btnClosePayment');
+      const btnCancelPayment = document.getElementById('btnCancelPayment');
+      const paymentCheckoutForm = document.getElementById('paymentCheckoutForm');
+      const payCardName = document.getElementById('payCardName');
+
+      if (btnOpenPaymentModal) {
+        btnOpenPaymentModal.addEventListener('click', () => {
+          if (payCardName) payCardName.value = user.fullName || 'Athlete';
+          paymentModal.style.display = 'flex';
+        });
+      }
+
+      if (btnClosePayment) {
+        btnClosePayment.addEventListener('click', () => {
+          paymentModal.style.display = 'none';
+        });
+      }
+
+      if (btnCancelPayment) {
+        btnCancelPayment.addEventListener('click', () => {
+          paymentModal.style.display = 'none';
+        });
+      }
+
+      if (paymentCheckoutForm) {
+        paymentCheckoutForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btnSubmit = document.getElementById('btnSubmitPayment');
+          if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing Payment...';
+          }
+
+          try {
+            const token = localStorage.getItem('fitnexa_token');
+            const res = await fetch('/api/payment/complete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                userId: user.id,
+                planTier: 'Pro Athlete',
+                amount: 39.00,
+                paymentMethod: 'Credit Card (Visa)'
+              })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.success) {
+              user.payment_status = 'paid';
+              user.plan_tier = 'Pro Athlete';
+              user.trial_days_left = 0;
+              if (data.user) {
+                localStorage.setItem('fitnexa_user', JSON.stringify(data.user));
+              }
+              updatePaymentStatusUI();
+              paymentModal.style.display = 'none';
+              showToast('Payment Completed ($39.00)! You are now a PAID Pro Athlete.');
+            } else {
+              alert(data.message || 'Payment processing failed. Please try again.');
+            }
+          } catch (err) {
+            console.error('Checkout error:', err);
+            alert('Failed to connect to payment server.');
+          } finally {
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = '<i class="bi bi-lock-fill me-1"></i> Complete Payment ($39.00)';
+            }
+          }
+        });
+      }
 
       // ----------------------------------------------------------------------
       // 10. Toast Notification Helper

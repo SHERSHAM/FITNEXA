@@ -175,17 +175,13 @@
 
   <!-- GSAP 3.12.5 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <!-- Supabase JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- Supabase Config -->
-  <script src="assets/js/supabase-config.js"></script>
-  <!-- Auth Logic (Supabase Edition) -->
+  <!-- Auth Logic (Custom Backend Edition) -->
   <script src="assets/js/auth.js"></script>
   <!-- Presentation & Animation Layer -->
   <script src="assets/js/auth-ui.js"></script>
   <script src="assets/js/animations/auth.js"></script>
 
-  <!-- Signup Form Handler (Using Supabase Auth) -->
+  <!-- Signup Form Handler -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // Check if already logged in
@@ -257,20 +253,11 @@
         try {
           const res = await window.Auth.signup(name, email, password);
           if (res && res.success) {
-            // Check if email confirmation is required
-            if (res.user && !res.session) {
-              // Email confirmation required
-              successBanner.style.display = 'flex';
-              successText.innerText = 'Account created! Please check your email to confirm your account, then log in.';
-              if (window.resetButtonLoading) window.resetButtonLoading(signupBtn);
-            } else {
-              // Auto-confirmed, redirect to onboarding
-              successBanner.style.display = 'flex';
-              successText.innerText = 'Account created! Redirecting...';
-              setTimeout(() => {
-                window.location.href = 'onboarding.html';
-              }, 500);
-            }
+            successBanner.style.display = 'flex';
+            successText.innerText = 'Account created! Redirecting to setup...';
+            setTimeout(() => {
+              window.location.href = 'onboarding.html';
+            }, 600);
           } else {
             if (window.resetButtonLoading) window.resetButtonLoading(signupBtn);
             errorBanner.style.display = 'flex';

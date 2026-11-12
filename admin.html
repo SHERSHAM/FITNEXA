@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Command Center — FITNEXA AI</title>
+  <meta name="description" content="FITNEXA AI Admin Portal: Monitor athlete workouts, member subscriptions, and revenue payments.">
+  <meta name="theme-color" content="#0B0C0E">
+
+  <!-- Google Fonts: Outfit, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- FITNEXA Master Stylesheets -->
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    body {
+      background: #0B0C0E;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    .admin-navbar {
+      background: rgba(18, 20, 24, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      padding: 16px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.6rem;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .admin-tag {
+      background: rgba(198, 255, 61, 0.12);
+      border: 1px solid rgba(198, 255, 61, 0.3);
+      color: #C6FF3D;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .admin-kpi-card {
+      background: rgba(18, 20, 24, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-kpi-card:hover {
+      border-color: rgba(198, 255, 61, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+    }
+    .kpi-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .kpi-lbl {
+      font-size: 0.76rem;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .kpi-icon {
+      font-size: 2rem;
+      opacity: 0.25;
+      position: absolute;
+      top: 18px;
+      right: 20px;
+    }
+    .admin-tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .admin-tab-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #94A3B8;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .admin-tab-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .admin-tab-btn.active {
+      background: #C6FF3D;
+      color: #0B0C0E;
+      border-color: #C6FF3D;
+      box-shadow: 0 0 20px rgba(198, 255, 61, 0.3);
+      font-weight: 700;
+    }
+    .admin-panel-card {
+      background: rgba(18, 20, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+    .admin-table {
+      margin-bottom: 0;
+      color: #E2E8F0;
+      font-size: 0.86rem;
+    }
+    .admin-table thead th {
+      background: rgba(24, 27, 34, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #C6FF3D;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 14px 18px;
+      font-weight: 600;
+    }
+    .admin-table tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.2s ease;
+    }
+    .admin-table tbody tr:hover {
+      background: rgba(198, 255, 61, 0.04);
+    }
+    .admin-table tbody td {
+      padding: 14px 18px;
+      vertical-align: middle;
+    }
+    .badge-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .badge-paid {
+      background: rgba(198, 255, 61, 0.12);
+      border: 1px solid rgba(198, 255, 61, 0.35);
+      color: #C6FF3D;
+    }
+    .badge-pending {
+      background: rgba(255, 170, 43, 0.15);
+      border: 1px solid rgba(255, 170, 43, 0.35);
+      color: #FFAA2B;
+    }
+    .badge-trial {
+      background: rgba(0, 212, 255, 0.12);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: #00D4FF;
+    }
+    .plan-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #E2E8F0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .btn-action-sm {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="admin-navbar d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <a href="index.html" class="admin-brand">FITNEXA<span style="color:#C6FF3D;">.</span></a>
+      <span class="admin-tag"><i class="bi bi-shield-check me-1"></i> ADMIN COMMAND CENTER</span>
+      <span class="badge bg-dark border border-secondary text-secondary font-mono small d-none d-lg-inline-block">MySQL 9.6 Live Engine</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2 me-2">
+        <div class="rounded-circle bg-success bg-opacity-25 p-1">
+          <i class="bi bi-person-circle fs-5 text-lime"></i>
+        </div>
+        <div>
+          <div class="fw-bold small text-white" id="adminUserDisplayName">Lead Coach Marcus</div>
+          <div class="text-secondary font-mono" style="font-size: 0.68rem;">Head Administrator</div>
+        </div>
+      </div>
+
+      <a href="database.html" class="btn btn-outline-info btn-sm">
+        <i class="bi bi-database me-1"></i> MySQL DB View
+      </a>
+      <a href="dashboard/index.html" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-speedometer2 me-1"></i> Athlete Portal
+      </a>
+      <button type="button" class="btn btn-outline-danger btn-sm" id="btnAdminLogout" title="Log out">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="container-fluid px-lg-5 pt-4">
+
+    <!-- KPI Metrics Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="admin-kpi-card">
+          <i class="bi bi-people-fill kpi-icon text-lime"></i>
+          <div class="kpi-num text-lime" id="kpiTotalMembers">19</div>
+          <div class="kpi-lbl">Total Joined Athletes</div>
+          <div class="small text-muted font-mono mt-2" style="font-size: 0.7rem;"><i class="bi bi-arrow-up-right text-lime me-1"></i> 100% Onboarded</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="admin-kpi-card">
+          <i class="bi bi-currency-dollar kpi-icon" style="color: #00D4FF;"></i>
+          <div class="kpi-num" style="color: #00D4FF;" id="kpiTotalRevenue">$671.00</div>
+          <div class="kpi-lbl">Monthly Recurring Revenue</div>
+          <div class="small text-muted font-mono mt-2" style="font-size: 0.7rem;" id="kpiRevenueSub"><span class="text-lime fw-bold" id="kpiPaidCount">15</span> Paid • <span class="text-info fw-bold" id="kpiTrialCount">0</span> in 10-Day Trial</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="admin-kpi-card">
+          <i class="bi bi-activity kpi-icon text-warning"></i>
+          <div class="kpi-num text-warning" id="kpiWorkoutsCompleted">52</div>
+          <div class="kpi-lbl">Monitored Workout Sessions</div>
+          <div class="small text-muted font-mono mt-2" style="font-size: 0.7rem;"><i class="bi bi-stopwatch me-1"></i> <span id="kpiTotalMinutes">1,890</span> mins trained</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="admin-kpi-card">
+          <i class="bi bi-shield-check kpi-icon" style="color: #C084FC;"></i>
+          <div class="kpi-num" style="color: #C084FC;" id="kpiFormAccuracy">95%</div>
+          <div class="kpi-lbl">Avg Biometric Form Accuracy</div>
+          <div class="small text-muted font-mono mt-2" style="font-size: 0.7rem;"><i class="bi bi-fire text-danger me-1"></i> <span id="kpiTotalCalories">22,450</span> kcal burned</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="admin-tab-nav">
+      <button type="button" class="admin-tab-btn active" data-tab="members">
+        <i class="bi bi-people-fill"></i> Athlete Directory (<span id="countTabMembers">19</span>)
+      </button>
+      <button type="button" class="admin-tab-btn" data-tab="workouts">
+        <i class="bi bi-lightning-charge-fill"></i> Workout Monitor (<span id="countTabWorkouts">52</span>)
+      </button>
+      <button type="button" class="admin-tab-btn" data-tab="payments">
+        <i class="bi bi-credit-card-2-front-fill"></i> Payments & Revenue (<span id="countTabPayments">17</span>)
+      </button>
+    </div>
+
+    <!-- Tab Filter & Search Controls -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+      <div class="d-flex gap-2 flex-wrap" id="filterPillsRow">
+        <button type="button" class="btn btn-sm btn-dark border-secondary active" data-filter="all">All Records</button>
+        <button type="button" class="btn btn-sm btn-dark border-secondary" data-filter="paid">Paid Members</button>
+        <button type="button" class="btn btn-sm btn-dark border-secondary" data-filter="pending">Pending Payments</button>
+        <button type="button" class="btn btn-sm btn-dark border-secondary" data-filter="trial">Free Trial</button>
+      </div>
+
+      <div class="d-flex gap-2" style="max-width: 360px; width: 100%;">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
+          <input type="text" id="adminSearchInput" class="form-control bg-dark border-secondary text-light small" placeholder="Search athletes, emails, goals...">
+        </div>
+        <button type="button" class="btn btn-fitnexa btn-accent btn-sm" id="btnActionTop">
+          <i class="bi bi-plus-lg me-1"></i> Action
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="admin-panel-card">
+      <div class="table-responsive" style="max-height: 680px;">
+        <table class="table admin-table table-dark table-hover" id="adminMainTable">
+          <thead id="adminTableHead">
+            <!-- Dynamically populated -->
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="10" class="text-center py-5 text-secondary">
+                <div class="spinner-border text-lime spinner-border-sm me-2"></div> Calibrating Admin Telemetry...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="mt-4 d-flex justify-content-between align-items-center text-secondary small font-mono">
+      <div>FITNEXA AI • Administrator Control Plane • MySQL 9.6 Persistent Engine</div>
+      <div class="text-lime"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> System Status: Operational</div>
+    </footer>
+  </div>
+
+  <!-- Modal 1: Record Manual Payment -->
+  <div class="modal fade" id="modalPayment" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-secondary text-light">
+        <div class="modal-header border-secondary border-opacity-50">
+          <h5 class="modal-title font-display text-lime"><i class="bi bi-credit-card-fill me-2"></i>Record / Update Payment</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formRecordPayment">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small text-secondary">Athlete Name</label>
+              <input type="text" id="pUserName" class="form-control bg-black border-secondary text-light" required placeholder="e.g. Marcus Vance">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small text-secondary">Email Address</label>
+              <input type="email" id="pEmail" class="form-control bg-black border-secondary text-light" required placeholder="name@example.com">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small text-secondary">Membership Tier</label>
+                <select id="pPlanTier" class="form-select bg-black border-secondary text-light">
+                  <option value="Pro Athlete">Pro Athlete ($39/mo)</option>
+                  <option value="Elite Team">Elite Team ($79/mo)</option>
+                  <option value="Starter">Starter ($19/mo)</option>
+                  <option value="Trial">Free Trial ($0)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-secondary">Payment Amount ($)</label>
+                <input type="number" id="pAmount" class="form-control bg-black border-secondary text-light" value="39.00" step="0.01">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small text-secondary">Payment Status</label>
+                <select id="pStatus" class="form-select bg-black border-secondary text-light">
+                  <option value="paid">Paid (Active)</option>
+                  <option value="pending">Pending</option>
+                  <option value="trial">Free Trial</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-secondary">Method</label>
+                <select id="pMethod" class="form-select bg-black border-secondary text-light">
+                  <option value="Stripe Credit Card">Stripe Credit Card</option>
+                  <option value="Apple Pay">Apple Pay</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Google Pay">Google Pay</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary border-opacity-50">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-fitnexa btn-accent">Save Transaction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Log Workout for Athlete -->
+  <div class="modal fade" id="modalWorkout" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-secondary text-light">
+        <div class="modal-header border-secondary border-opacity-50">
+          <h5 class="modal-title font-display text-lime"><i class="bi bi-stopwatch-fill me-2"></i>Log Workout Session</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formLogWorkout">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small text-secondary">Select Athlete</label>
+              <select id="wAthleteSelect" class="form-select bg-black border-secondary text-light" required>
+                <!-- Filled dynamically -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small text-secondary">Workout Protocol Name</label>
+              <input type="text" id="wWorkoutName" class="form-control bg-black border-secondary text-light" required value="Upper Body Power">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small text-secondary">Category</label>
+                <select id="wCategory" class="form-select bg-black border-secondary text-light">
+                  <option value="Strength">Strength</option>
+                  <option value="HIIT">HIIT</option>
+                  <option value="Muscle Building">Muscle Building</option>
+                  <option value="Endurance">Endurance</option>
+                  <option value="Mobility">Mobility</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-secondary">Duration (mins)</label>
+                <input type="number" id="wDuration" class="form-control bg-black border-secondary text-light" value="45">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small text-secondary">Calories Burned</label>
+                <input type="number" id="wCalories" class="form-control bg-black border-secondary text-light" value="420">
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-secondary">Form Accuracy (%)</label>
+                <input type="number" id="wFormScore" class="form-control bg-black border-secondary text-light" value="96" min="70" max="100">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary border-opacity-50">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-fitnexa btn-accent">Log Session</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Admin Controller Logic -->
+  <script>
+    let activeTab = 'members';
+    let filterStatus = 'all';
+    let membersData = [];
+    let workoutsData = [];
+    let paymentsData = [];
+
+    // 1. Fetch & Initialize Admin Dashboard
+    async function fetchAdminOverview() {
+      try {
+        const res = await fetch('/api/admin/overview');
+        const data = await res.json();
+        if (data && data.success) {
+          const m = data.metrics;
+          document.getElementById('kpiTotalMembers').innerText = m.totalAthletes;
+          document.getElementById('kpiTotalRevenue').innerText = '$' + Number(m.totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2 });
+          document.getElementById('kpiPaidCount').innerText = m.paidMembers;
+          if (document.getElementById('kpiTrialCount')) {
+            document.getElementById('kpiTrialCount').innerText = m.trialMembers || 0;
+          }
+          document.getElementById('kpiWorkoutsCompleted').innerText = m.totalWorkoutsCompleted;
+          document.getElementById('kpiTotalMinutes').innerText = Number(m.totalMinutesTrained).toLocaleString();
+          document.getElementById('kpiFormAccuracy').innerText = m.avgFormAccuracy + '%';
+          document.getElementById('kpiTotalCalories').innerText = Number(m.totalCaloriesBurned).toLocaleString();
+        }
+      } catch (e) {
+        console.error('Failed to load overview metrics:', e);
+      }
+    }
+
+    async function loadMembers() {
+      try {
+        const res = await fetch('/api/admin/members');
+        const data = await res.json();
+        if (data && data.success) {
+          membersData = data.members;
+          document.getElementById('countTabMembers').innerText = membersData.length;
+          populateAthleteSelect(membersData);
+          if (activeTab === 'members') renderTable();
+        }
+      } catch (e) {
+        console.error('Failed to load members:', e);
+      }
+    }
+
+    async function loadWorkouts() {
+      try {
+        const res = await fetch('/api/admin/workouts');
+        const data = await res.json();
+        if (data && data.success) {
+          workoutsData = data.workouts;
+          document.getElementById('countTabWorkouts').innerText = workoutsData.length;
+          if (activeTab === 'workouts') renderTable();
+        }
+      } catch (e) {
+        console.error('Failed to load workouts:', e);
+      }
+    }
+
+    async function loadPayments() {
+      try {
+        const res = await fetch('/api/admin/payments');
+        const data = await res.json();
+        if (data && data.success) {
+          paymentsData = data.payments;
+          document.getElementById('countTabPayments').innerText = paymentsData.length;
+          if (activeTab === 'payments') renderTable();
+        }
+      } catch (e) {
+        console.error('Failed to load payments:', e);
+      }
+    }
+
+    function populateAthleteSelect(members) {
+      const select = document.getElementById('wAthleteSelect');
+      select.innerHTML = members.map(m => `
+        <option value="${m.profile_id}">${m.full_name} (${m.goal || 'General Fitness'})</option>
+      `).join('');
+    }
+
+    // 2. Render Data Tables
+    function renderTable() {
+      const head = document.getElementById('adminTableHead');
+      const body = document.getElementById('adminTableBody');
+      const search = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+
+      if (activeTab === 'members') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Athlete Name</th>
+            <th>Joined Date</th>
+            <th>Goal & Level</th>
+            <th>Workouts</th>
+            <th>Calories</th>
+            <th>Form Score</th>
+            <th>Plan Tier</th>
+            <th>Payment Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        `;
+
+        let filtered = membersData;
+        if (filterStatus !== 'all') {
+          filtered = filtered.filter(m => m.payment_status.toLowerCase() === filterStatus);
+        }
+        if (search) {
+          filtered = filtered.filter(m =>
+            (m.full_name && m.full_name.toLowerCase().includes(search)) ||
+            (m.email && m.email.toLowerCase().includes(search)) ||
+            (m.goal && m.goal.toLowerCase().includes(search)) ||
+            (m.plan_tier && m.plan_tier.toLowerCase().includes(search))
+          );
+        }
+
+        if (filtered.length === 0) {
+          body.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-secondary">No athletes match the current filter.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = filtered.map((m, idx) => `
+          <tr>
+            <td class="font-mono text-muted">${idx + 1}</td>
+            <td>
+              <div class="fw-bold text-white"><i class="bi bi-person-fill text-lime me-1"></i> ${m.full_name}</div>
+              <div class="text-secondary small font-mono">${m.email}</div>
+            </td>
+            <td class="font-mono small text-secondary">${new Date(m.joined_date).toLocaleDateString()}</td>
+            <td>
+              <span class="badge bg-dark border border-secondary text-lime text-capitalize font-mono">${m.goal ? m.goal.replace('_', ' ') : 'General'}</span>
+              <div class="text-secondary small text-capitalize">${m.experience || 'Intermediate'} • ${m.workout_frequency || '3-4 days'}</div>
+              <div class="text-muted font-mono" style="font-size: 0.68rem;">${m.gender || '—'} • ${m.age_range ? m.age_range + ' yrs' : '—'} • ${m.height_cm ? m.height_cm + 'cm' : '—'} • ${m.weight_kg ? m.weight_kg + 'kg' : '—'}</div>
+            </td>
+            <td>
+              <span class="fw-bold font-mono text-white">${m.workouts_completed}</span>
+              <span class="text-muted small"> sessions</span>
+            </td>
+            <td class="font-mono">${Number(m.calories_burned).toLocaleString()} kcal</td>
+            <td>
+              <span class="badge bg-success bg-opacity-25 text-lime border border-success border-opacity-50 font-mono">${m.avg_form_score}%</span>
+            </td>
+            <td><span class="plan-badge">${m.plan_tier}</span></td>
+            <td>
+              <div class="d-flex flex-column gap-1">
+                <span class="badge-status ${m.payment_status === 'paid' ? 'badge-paid' : (m.payment_status === 'trial' ? 'badge-trial' : 'badge-pending')}">
+                  ${m.payment_status === 'paid' ? '<i class="bi bi-check2-circle"></i> PAID' : (m.payment_status === 'trial' ? '<i class="bi bi-clock-history"></i> 10-DAY TRIAL' : '<i class="bi bi-hourglass-split"></i> PENDING')}
+                </span>
+                <span class="font-mono text-muted" style="font-size: 0.72rem;">
+                  ${m.payment_status === 'paid' ? '$' + Number(m.payment_amount || 39).toFixed(2) : '$0.00 (Free Trial)'}
+                </span>
+              </div>
+            </td>
+            <td class="text-end">
+              ${m.payment_status === 'trial' ? `
+                <button type="button" class="btn btn-outline-lime btn-action-sm btn-quick-approve me-1" data-id="${m.user_id || m.profile_id}" data-name="${m.full_name}" data-email="${m.email}">
+                  <i class="bi bi-check2-circle me-1"></i> Mark Paid
+                </button>
+              ` : ''}
+              <button type="button" class="btn btn-outline-secondary btn-action-sm btn-quick-pay" data-id="${m.profile_id}" data-name="${m.full_name}" data-email="${m.email}" data-plan="${m.plan_tier}">
+                <i class="bi bi-pencil-square me-1"></i> Billing
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Wire up quick approve (trial -> paid) buttons
+        document.querySelectorAll('.btn-quick-approve').forEach(b => {
+          b.addEventListener('click', async () => {
+            const userId = b.getAttribute('data-id');
+            const userName = b.getAttribute('data-name');
+            const email = b.getAttribute('data-email');
+            if (!confirm(`Mark payment completed for ${userName} ($39.00 Pro Athlete)?`)) return;
+
+            try {
+              const res = await fetch('/api/admin/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userId: userId,
+                  userName: userName,
+                  email: email,
+                  planTier: 'Pro Athlete',
+                  amount: 39.00,
+                  status: 'paid',
+                  paymentMethod: 'Admin Recorded (Credit Card)'
+                })
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                await loadAllData();
+                renderTable();
+              } else {
+                alert(data.message || 'Failed to update payment status.');
+              }
+            } catch (err) {
+              alert('Error communicating with server.');
+            }
+          });
+        });
+
+        // Wire up quick billing buttons
+        document.querySelectorAll('.btn-quick-pay').forEach(b => {
+          b.addEventListener('click', () => {
+            document.getElementById('pUserName').value = b.getAttribute('data-name');
+            document.getElementById('pEmail').value = b.getAttribute('data-email');
+            document.getElementById('pPlanTier').value = b.getAttribute('data-plan') || 'Pro Athlete';
+            const modal = new bootstrap.Modal(document.getElementById('modalPayment'));
+            modal.show();
+          });
+        });
+
+      } else if (activeTab === 'workouts') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Athlete</th>
+            <th>Workout Protocol</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Calories</th>
+            <th>AI Form Score</th>
+            <th>Logged At</th>
+          </tr>
+        `;
+
+        let filtered = workoutsData;
+        if (search) {
+          filtered = filtered.filter(w =>
+            (w.user_name && w.user_name.toLowerCase().includes(search)) ||
+            (w.workout_name && w.workout_name.toLowerCase().includes(search)) ||
+            (w.category && w.category.toLowerCase().includes(search))
+          );
+        }
+
+        if (filtered.length === 0) {
+          body.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-secondary">No workout logs recorded yet.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = filtered.map((w, idx) => `
+          <tr>
+            <td class="font-mono text-muted">${idx + 1}</td>
+            <td class="fw-bold text-white"><i class="bi bi-person-fill text-lime me-1"></i> ${w.user_name}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <img src="${(w.category && w.category.toLowerCase().includes('hiit')) ? 'assets/images/workout-hiit.jpg' : (w.category && w.category.toLowerCase().includes('fat')) ? 'assets/images/workout-fatloss.jpg' : (w.category && w.category.toLowerCase().includes('endurance')) ? 'assets/images/workout-endurance.jpg' : (w.category && w.category.toLowerCase().includes('mobility')) ? 'assets/images/workout-mobility.jpg' : 'assets/images/workout-strength.jpg'}" alt="${w.workout_name}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(198, 255, 61, 0.3);">
+                <div>
+                  <div class="fw-bold text-lime">${w.workout_name}</div>
+                  <div class="text-muted small">${w.athlete_goal ? w.athlete_goal.replace('_', ' ') : ''}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge bg-dark border border-secondary text-secondary font-mono">${w.category}</span></td>
+            <td class="font-mono text-white"><i class="bi bi-clock text-warning me-1"></i> ${w.duration_min} min</td>
+            <td class="font-mono text-white"><i class="bi bi-fire text-danger me-1"></i> ${w.calories_burned} kcal</td>
+            <td>
+              <span class="badge bg-success bg-opacity-25 text-lime border border-success border-opacity-50 font-mono">${w.form_score}% Form</span>
+            </td>
+            <td class="font-mono small text-secondary">${new Date(w.logged_at).toLocaleString()}</td>
+          </tr>
+        `).join('');
+
+      } else if (activeTab === 'payments') {
+        head.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Transaction ID</th>
+            <th>Athlete Name</th>
+            <th>Plan Tier</th>
+            <th>Amount</th>
+            <th>Cycle</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+            <th>Payment Date</th>
+            <th>Next Billing</th>
+          </tr>
+        `;
+
+        let filtered = paymentsData;
+        if (filterStatus !== 'all') {
+          filtered = filtered.filter(p => p.status.toLowerCase() === filterStatus);
+        }
+        if (search) {
+          filtered = filtered.filter(p =>
+            (p.user_name && p.user_name.toLowerCase().includes(search)) ||
+            (p.email && p.email.toLowerCase().includes(search)) ||
+            (p.plan_tier && p.plan_tier.toLowerCase().includes(search)) ||
+            (p.transaction_id && p.transaction_id.toLowerCase().includes(search))
+          );
+        }
+
+        if (filtered.length === 0) {
+          body.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-secondary">No payment transactions match the filter.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = filtered.map((p, idx) => `
+          <tr>
+            <td class="font-mono text-muted">${idx + 1}</td>
+            <td class="font-mono small text-lime">${p.transaction_id || p.id}</td>
+            <td>
+              <div class="fw-bold text-white">${p.user_name}</div>
+              <div class="text-secondary small font-mono">${p.email || '—'}</div>
+            </td>
+            <td><span class="plan-badge">${p.plan_tier}</span></td>
+            <td class="font-mono fw-bold text-white">$${Number(p.amount).toFixed(2)}</td>
+            <td class="font-mono small text-secondary">${p.billing_cycle || 'Monthly'}</td>
+            <td><i class="bi bi-credit-card me-1 text-muted"></i> ${p.payment_method || 'Stripe'}</td>
+            <td>
+              <span class="badge-status ${p.status === 'paid' ? 'badge-paid' : (p.status === 'trial' ? 'badge-trial' : 'badge-pending')}">
+                ${p.status.toUpperCase()}
+              </span>
+            </td>
+            <td class="font-mono small text-secondary">${new Date(p.created_at).toLocaleDateString()}</td>
+            <td class="font-mono small text-secondary">${p.next_billing_date ? new Date(p.next_billing_date).toLocaleDateString() : '—'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // 3. Tab Switching
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.getAttribute('data-tab');
+
+        // Adjust top action button
+        const topBtn = document.getElementById('btnActionTop');
+        if (activeTab === 'workouts') {
+          topBtn.innerHTML = '<i class="bi bi-stopwatch-fill me-1"></i> Log Workout';
+        } else if (activeTab === 'payments') {
+          topBtn.innerHTML = '<i class="bi bi-credit-card-fill me-1"></i> Record Payment';
+        } else {
+          topBtn.innerHTML = '<i class="bi bi-person-plus-fill me-1"></i> Add Athlete';
+        }
+
+        renderTable();
+      });
+    });
+
+    // 4. Filter Buttons
+    document.querySelectorAll('#filterPillsRow button').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#filterPillsRow button').forEach(btn => btn.classList.remove('active'));
+        b.classList.add('active');
+        filterStatus = b.getAttribute('data-filter');
+        renderTable();
+      });
+    });
+
+    // 5. Search input
+    document.getElementById('adminSearchInput').addEventListener('input', renderTable);
+
+    // 6. Action button modal trigger
+    document.getElementById('btnActionTop').addEventListener('click', () => {
+      if (activeTab === 'workouts') {
+        new bootstrap.Modal(document.getElementById('modalWorkout')).show();
+      } else {
+        new bootstrap.Modal(document.getElementById('modalPayment')).show();
+      }
+    });
+
+    // 7. Form submissions
+    document.getElementById('formRecordPayment').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        userName: document.getElementById('pUserName').value.trim(),
+        email: document.getElementById('pEmail').value.trim(),
+        planTier: document.getElementById('pPlanTier').value,
+        amount: parseFloat(document.getElementById('pAmount').value),
+        status: document.getElementById('pStatus').value,
+        paymentMethod: document.getElementById('pMethod').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          bootstrap.Modal.getInstance(document.getElementById('modalPayment')).hide();
+          await fetchAdminOverview();
+          await loadMembers();
+          await loadPayments();
+        }
+      } catch (err) {
+        alert('Error saving payment: ' + err.message);
+      }
+    });
+
+    document.getElementById('formLogWorkout').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const select = document.getElementById('wAthleteSelect');
+      const selectedName = select.options[select.selectedIndex].text.split('(')[0].trim();
+
+      const payload = {
+        userId: select.value,
+        userName: selectedName,
+        workoutName: document.getElementById('wWorkoutName').value.trim(),
+        category: document.getElementById('wCategory').value,
+        durationMin: parseInt(document.getElementById('wDuration').value, 10),
+        caloriesBurned: parseInt(document.getElementById('wCalories').value, 10),
+        formScore: parseInt(document.getElementById('wFormScore').value, 10)
+      };
+
+      try {
+        const res = await fetch('/api/admin/log-workout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          bootstrap.Modal.getInstance(document.getElementById('modalWorkout')).hide();
+          await fetchAdminOverview();
+          await loadWorkouts();
+          await loadMembers();
+        }
+      } catch (err) {
+        alert('Error logging workout: ' + err.message);
+      }
+    });
+
+    // Logout
+    document.getElementById('btnAdminLogout').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await fetchAdminOverview();
+      await loadMembers();
+      await loadWorkouts();
+      await loadPayments();
+    });
+  </script>
+</body>
+</html>
+

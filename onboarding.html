@@ -937,14 +937,10 @@
 
   <!-- GSAP 3.12.5 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <!-- Supabase JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- Supabase Config -->
-  <script src="assets/js/supabase-config.js"></script>
   <!-- Auth Logic -->
   <script src="assets/js/auth.js"></script>
 
-  <!-- Onboarding Wizard Controller (Saves to Supabase) -->
+  <!-- Onboarding Wizard Controller (Saves to Custom Backend Database) -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // ── Auth Guard: Must be logged in ──────────────────
@@ -1133,7 +1129,7 @@
           : 'Next <i class="bi bi-arrow-right"></i>';
       }
 
-      // ── Final: Save to Supabase & Animate ──────────────
+      // ── Final: Save to Database & Animate ──────────────
       async function startBuildingPlan() {
         const lastPane = document.getElementById('stepPane' + totalSteps);
         const finalPane = document.getElementById('stepPaneFinal');
@@ -1157,19 +1153,24 @@
         // Milestone 1: Analyzing Profile
         setTimeout(() => { bar.style.width = '30%'; ms1.classList.add('completed'); }, 600);
 
-        // Milestone 2: Save to Supabase
+        // Milestone 2: Save to Custom Backend (SQLite Database)
         setTimeout(async () => {
           bar.style.width = '55%';
           ms2.classList.add('completed');
 
-          // ── SAVE TO SUPABASE ──────────────────────────
+          // ── SAVE TO DATABASE ──────────────────────────
           try {
-            if (window.supabaseClient && currentUser) {
-              const { error } = await window.supabaseClient
-                .from('profiles')
-                .upsert({
+            if (currentUser) {
+              const token = localStorage.getItem('fitnexa_token') || '';
+              const res = await fetch('/api/profile/' + currentUser.id, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
                   id: currentUser.id,
-                  full_name: currentUser.user_metadata?.full_name || '',
+                  full_name: currentUser.full_name || currentUser.fullName || '',
                   gender: profileData.gender,
                   age_range: profileData.age_range,
                   height_cm: profileData.height_cm,
@@ -1177,15 +1178,11 @@
                   goal: profileData.goal,
                   experience: profileData.experience,
                   workout_frequency: profileData.workout_frequency,
-                  onboarding_completed: true,
-                  updated_at: new Date().toISOString()
-                });
-
-              if (error) {
-                console.error('[FITNEXA] Profile save error:', error.message);
-              } else {
-                console.log('[FITNEXA] ✅ Profile saved to Supabase.');
-              }
+                  onboarding_completed: true
+                })
+              });
+              const saved = await res.json();
+              console.log('[FITNEXA] ✅ Profile saved to database:', saved);
             }
           } catch (err) {
             console.error('[FITNEXA] Profile save failed:', err.message);
